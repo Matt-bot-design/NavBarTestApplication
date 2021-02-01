@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ServiceLocatorLoginScreeen">
-        <activity android:name=".RequestSummary"></activity>
+        <activity android:name=".ComUpdateProfile"></activity>
+        <activity android:name=".RequestSummary" />
         <activity android:name=".Profilepage" />
         <activity android:name=".ProfilesList" />
         <activity android:name=".CompanySignUp" />

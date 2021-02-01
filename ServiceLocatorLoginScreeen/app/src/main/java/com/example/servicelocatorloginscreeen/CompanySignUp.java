@@ -1,5 +1,6 @@
 package com.example.servicelocatorloginscreeen;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -8,14 +9,18 @@ import android.view.View;
 import android.widget.Button;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 public class CompanySignUp extends AppCompatActivity {
 
     Button btnCallComSignUp;
     Button login_btn;
-    TextInputLayout comFullName, companyusername, companyemail, companyphone, companyaddress, companyID, companypassword;
+    TextInputLayout comFullName, companyusername, companyemail, companyphone, companyaddress, companyID, companypassword, comservices, SignUpUsername, SignUpPassword;
 
     FirebaseDatabase rootNode;
     DatabaseReference reference;
@@ -34,6 +39,9 @@ public class CompanySignUp extends AppCompatActivity {
         companyaddress = findViewById(R.id.address);
         companyID = findViewById(R.id.identification_registration_number);
         companypassword = findViewById(R.id.password);
+        comservices = findViewById(R.id.services);
+        SignUpPassword = findViewById(R.id.password);
+        SignUpUsername = findViewById(R.id.username);
 
         login_btn.setOnClickListener((view) -> {
             Intent intent = new Intent(CompanySignUp.this, Login.class);
@@ -125,6 +133,18 @@ public class CompanySignUp extends AppCompatActivity {
         }
     }
 
+    private Boolean validateServices() {
+        String val = comservices.getEditText().getText().toString();
+
+        if (val.isEmpty()) {
+            comservices.setError("Field empty");
+            return false;
+        } else {
+            comservices.setError(null);
+            return true;
+        }
+    }
+
     private Boolean validatePassword() {
         String val = companypassword.getEditText().getText().toString();
 
@@ -139,21 +159,93 @@ public class CompanySignUp extends AppCompatActivity {
 
     public void ComReg(View view) {
 
-        if (!validateName() | !validateUsername() | !validateEmail() | !validatePhoneNum() | !validateAddress() | !validateID() | !validatePassword()) {
+        if (!validateName() | !validateUsername() | !validateEmail() | !validatePhoneNum() | !validateAddress() | !validateID() | !validatePassword() | !validateServices()) {
             return;
         }
+        else {
+            isCompany();
+        }
+
 
         rootNode = FirebaseDatabase.getInstance();
         reference = rootNode.getReference("Company");
 
-        String name = comFullName.getEditText().getText().toString();
-        String usern = companyusername.getEditText().getText().toString();
-        String useremail = companyemail.getEditText().getText().toString();
-        String phone = companyphone.getEditText().getText().toString();
-        String physicaladdress = companyaddress.getEditText().getText().toString();
-        String userpassword = companypassword.getEditText().getText().toString();
-        String idenNumber = companyID.getEditText().getText().toString();
-        UserHandlerClass handlerClass = new UserHandlerClass(name, usern, useremail, phone, physicaladdress, userpassword, idenNumber);
-        reference.child(idenNumber).setValue(handlerClass);
+        String companyname = comFullName.getEditText().getText().toString();
+        String companyusern = companyusername.getEditText().getText().toString();
+        String companyemailaddress = companyemail.getEditText().getText().toString();
+        String companyphonenumber = companyphone.getEditText().getText().toString();
+        String companyphysicaladdress = companyaddress.getEditText().getText().toString();
+        String companyservices = comservices.getEditText().getText().toString();
+        String companypasswword = companypassword.getEditText().getText().toString();
+        String companyregistrationnumber = companyID.getEditText().getText().toString();
+        CompanyHandlerClass companyhandlerClass = new CompanyHandlerClass(companyname, companyusern, companyemailaddress, companyphonenumber, companyphysicaladdress, companypasswword, companyregistrationnumber, companyservices);
+        reference.child(companyusern).setValue(companyhandlerClass);
+
+
+        //Intent intent1 = new Intent(CompanySignUp.this,ComUpdateProfile.class);
+        //startActivity(intent1);
+    }
+    private void isCompany() {
+
+        String companyEnteredUsername = SignUpUsername.getEditText().getText().toString().trim();
+        String companyEnteredPassword = SignUpPassword.getEditText().getText().toString().trim();
+
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Company");
+
+        Query checkUser = reference.orderByChild("companyusern").equalTo(companyEnteredUsername);
+
+        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot.exists()) {
+
+                    SignUpUsername.setError(null);
+                    SignUpUsername.setErrorEnabled(false);
+
+                    String passwordFromDB = dataSnapshot.child(companyEnteredUsername).child("companypassword").getValue(String.class);
+
+                    if(passwordFromDB.equals(companyEnteredPassword)) {
+
+                        SignUpUsername.setError(null);
+                        SignUpUsername.setErrorEnabled(false);
+
+                        String nameFromDB = dataSnapshot.child(companyEnteredUsername).child("companyname").getValue(String.class);
+                        String usernameFromDB = dataSnapshot.child(companyEnteredUsername).child("companyusern").getValue(String.class);
+                        String phoneFromDB = dataSnapshot.child(companyEnteredUsername).child("companyphonenumber").getValue(String.class);
+                        String emailFromDB = dataSnapshot.child(companyEnteredUsername).child("companyemailaddress").getValue(String.class);
+                        String idNumFromDB = dataSnapshot.child(companyEnteredUsername).child("companyregistrationnumber").getValue(String.class);
+                        String physicaladdressFromDB = dataSnapshot.child(companyEnteredUsername).child("companyphysicaladdress").getValue(String.class);
+                        String servicesFromDB = dataSnapshot.child(companyEnteredUsername).child("companyservices").getValue(String.class);
+
+                        Intent intent = new Intent(getApplicationContext(),ComUpdateProfile.class);
+
+                        intent.putExtra("companyname",nameFromDB);
+                        intent.putExtra("companyusern",usernameFromDB);
+                        intent.putExtra("companyregistrationnumber",idNumFromDB);
+                        intent.putExtra("companyemailaddress",emailFromDB);
+                        intent.putExtra("companyphysicaladdress",physicaladdressFromDB);
+                        intent.putExtra("companyphonenumber",phoneFromDB);
+                        intent.putExtra("companyservices",servicesFromDB);
+
+                        startActivity(intent);
+                    }
+                    else {
+                        SignUpPassword.setError("Wrong Password");
+                        SignUpPassword.requestFocus();
+                    }
+                }
+                else {
+                    SignUpUsername.setError("No such user exist");
+                    SignUpUsername.requestFocus();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }

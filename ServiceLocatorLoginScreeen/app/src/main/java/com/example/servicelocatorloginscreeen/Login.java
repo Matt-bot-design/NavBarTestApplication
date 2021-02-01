@@ -80,7 +80,72 @@ public class Login extends AppCompatActivity {
         }
         else {
             isUser();
+            isCompany();
         }
+    }
+
+    private void isCompany() {
+
+        String companyEnteredUsername = LoginUsername.getEditText().getText().toString().trim();
+        String companyEnteredPassword = LoginPassword.getEditText().getText().toString().trim();
+
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Company");
+
+        Query checkUser = reference.orderByChild("companyusern").equalTo(companyEnteredUsername);
+
+        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot.exists()) {
+
+                    LoginUsername.setError(null);
+                    LoginUsername.setErrorEnabled(false);
+
+                    String passwordFromDB = dataSnapshot.child(companyEnteredUsername).child("companypassword").getValue(String.class);
+
+                    if(passwordFromDB.equals(companyEnteredPassword)) {
+
+                        LoginUsername.setError(null);
+                        LoginUsername.setErrorEnabled(false);
+
+                        String nameFromDB = dataSnapshot.child(companyEnteredUsername).child("companyname").getValue(String.class);
+                        String usernameFromDB = dataSnapshot.child(companyEnteredUsername).child("companyusern").getValue(String.class);
+                        String phoneFromDB = dataSnapshot.child(companyEnteredUsername).child("companyphonenumber").getValue(String.class);
+                        String emailFromDB = dataSnapshot.child(companyEnteredUsername).child("companyemailaddress").getValue(String.class);
+                        String idNumFromDB = dataSnapshot.child(companyEnteredUsername).child("companyregistrationnumber").getValue(String.class);
+                        String physicaladdressFromDB = dataSnapshot.child(companyEnteredUsername).child("companyphysicaladdress").getValue(String.class);
+                        String servicesFromDB = dataSnapshot.child(companyEnteredUsername).child("companyservices").getValue(String.class);
+
+                        Intent intent = new Intent(getApplicationContext(),ComUpdateProfile.class);
+
+                        intent.putExtra("companyname",nameFromDB);
+                        intent.putExtra("companyusern",usernameFromDB);
+                        intent.putExtra("companyregistrationnumber",idNumFromDB);
+                        intent.putExtra("companyemailaddress",emailFromDB);
+                        intent.putExtra("companyphysicaladdress",physicaladdressFromDB);
+                        intent.putExtra("companyphonenumber",phoneFromDB);
+                        intent.putExtra("companyservices",servicesFromDB);
+
+                        startActivity(intent);
+                    }
+                    else {
+                        LoginPassword.setError("Wrong Password");
+                        LoginPassword.requestFocus();
+                    }
+                }
+                else {
+                    LoginUsername.setError("No such user exist");
+                    LoginUsername.requestFocus();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void isUser() {
@@ -116,7 +181,7 @@ public class Login extends AppCompatActivity {
                         String idNumFromDB = dataSnapshot.child(userEnteredUsername).child("idenNumber").getValue(String.class);
                         String physicaladdressFromDB = dataSnapshot.child(userEnteredUsername).child("physicaladdress").getValue(String.class);
 
-                        Intent intent = new Intent(getApplicationContext(),Profilepage.class);
+                        Intent intent = new Intent(getApplicationContext(),ProfilesList.class);
 
                         intent.putExtra("name",nameFromDB);
                         intent.putExtra("usern",usernameFromDB);
