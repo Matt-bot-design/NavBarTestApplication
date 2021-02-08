@@ -22,6 +22,7 @@ public class Login extends AppCompatActivity {
     Button ComSignUp;
     Button btnLogin;
     TextInputLayout LoginUsername, LoginPassword;
+    Button btnForgotPswrd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,7 @@ public class Login extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         LoginUsername = findViewById(R.id.username);
         LoginPassword = findViewById(R.id.password);
+        btnForgotPswrd = findViewById(R.id.btnForgot);
 
         callSignUp.setOnClickListener((view) -> {
             Intent intent = new Intent(Login.this,UserSignUp.class);
@@ -42,6 +44,11 @@ public class Login extends AppCompatActivity {
         ComSignUp.setOnClickListener((view) -> {
             Intent intent2 = new Intent(Login.this,CompanySignUp.class);
             startActivity(intent2);
+        } );
+
+        btnForgotPswrd.setOnClickListener((view) -> {
+            Intent intent3 = new Intent (Login.this, ResetPassword.class);
+            startActivity(intent3);
         } );
 
 
@@ -126,6 +133,7 @@ public class Login extends AppCompatActivity {
                         intent.putExtra("companyemailaddress",emailFromDB);
                         intent.putExtra("companyphysicaladdress",physicaladdressFromDB);
                         intent.putExtra("companyphonenumber",phoneFromDB);
+                        intent.putExtra("companypassword",passwordFromDB);
                         intent.putExtra("companyservices",servicesFromDB);
 
                         startActivity(intent);

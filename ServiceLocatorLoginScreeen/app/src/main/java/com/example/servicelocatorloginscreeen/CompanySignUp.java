@@ -7,8 +7,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,6 +25,7 @@ public class CompanySignUp extends AppCompatActivity {
     Button login_btn;
     TextInputLayout comFullName, companyusername, companyemail, companyphone, companyaddress, companyID, companypassword, comservices, SignUpUsername, SignUpPassword;
 
+    private FirebaseAuth emailAuth;
     FirebaseDatabase rootNode;
     DatabaseReference reference;
 
@@ -29,6 +33,8 @@ public class CompanySignUp extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_company_sign_up);
+
+        emailAuth = FirebaseAuth.getInstance();
 
         btnCallComSignUp = findViewById(R.id.btnCallComSignUp);
         login_btn = findViewById(R.id.login_btn);
@@ -40,8 +46,10 @@ public class CompanySignUp extends AppCompatActivity {
         companyID = findViewById(R.id.identification_registration_number);
         companypassword = findViewById(R.id.password);
         comservices = findViewById(R.id.services);
+        //companyretypepassword = findViewById(R.id.com_repassword);
         SignUpPassword = findViewById(R.id.password);
         SignUpUsername = findViewById(R.id.username);
+        
 
         login_btn.setOnClickListener((view) -> {
             Intent intent = new Intent(CompanySignUp.this, Login.class);
@@ -157,12 +165,34 @@ public class CompanySignUp extends AppCompatActivity {
         }
     }
 
+    private Boolean validateRetypePswrd () {
+        EditText comRetypePswrd;
+
+        comRetypePswrd = findViewById(R.id.com_repassword);
+
+        String val = companypassword.getEditText().getText().toString();
+        String val1 = comRetypePswrd.getText().toString();
+
+        if (!val.equals(val1)) {
+            Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        else {
+            comRetypePswrd.setError(null);
+            return true;
+        }
+    }
+
     public void ComReg(View view) {
 
-        if (!validateName() | !validateUsername() | !validateEmail() | !validatePhoneNum() | !validateAddress() | !validateID() | !validatePassword() | !validateServices()) {
+        String companyemailaddress = companyemail.getEditText().getText().toString();
+        String companypasswword = companypassword.getEditText().getText().toString();
+
+        if (!validateName() | !validateUsername() | !validateEmail() | !validatePhoneNum() | !validateAddress() | !validateID() | !validatePassword() | !validateServices() | !validateRetypePswrd()) {
             return;
         }
         else {
+            emailAuth.createUserWithEmailAndPassword(companyemailaddress, companypasswword);
             isCompany();
         }
 
@@ -172,11 +202,11 @@ public class CompanySignUp extends AppCompatActivity {
 
         String companyname = comFullName.getEditText().getText().toString();
         String companyusern = companyusername.getEditText().getText().toString();
-        String companyemailaddress = companyemail.getEditText().getText().toString();
+        //String companyemailaddress = companyemail.getEditText().getText().toString();
         String companyphonenumber = companyphone.getEditText().getText().toString();
         String companyphysicaladdress = companyaddress.getEditText().getText().toString();
         String companyservices = comservices.getEditText().getText().toString();
-        String companypasswword = companypassword.getEditText().getText().toString();
+        //String companypasswword = companypassword.getEditText().getText().toString();
         String companyregistrationnumber = companyID.getEditText().getText().toString();
         CompanyHandlerClass companyhandlerClass = new CompanyHandlerClass(companyname, companyusern, companyemailaddress, companyphonenumber, companyphysicaladdress, companypasswword, companyregistrationnumber, companyservices);
         reference.child(companyusern).setValue(companyhandlerClass);
@@ -227,6 +257,7 @@ public class CompanySignUp extends AppCompatActivity {
                         intent.putExtra("companyemailaddress",emailFromDB);
                         intent.putExtra("companyphysicaladdress",physicaladdressFromDB);
                         intent.putExtra("companyphonenumber",phoneFromDB);
+                        intent.putExtra("companypassword",passwordFromDB);
                         intent.putExtra("companyservices",servicesFromDB);
 
                         startActivity(intent);
