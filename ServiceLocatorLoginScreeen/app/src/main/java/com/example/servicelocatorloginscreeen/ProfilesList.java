@@ -13,6 +13,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +37,7 @@ public class ProfilesList extends AppCompatActivity {
     private EditText SearchInput;
     private RecyclerView SearchList;
     private DatabaseReference companiesReference;
+    private ImageView userprofileImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,11 +46,13 @@ public class ProfilesList extends AppCompatActivity {
 
         companiesReference = FirebaseDatabase.getInstance().getReference().child("Company");
 
+
         SearchList = findViewById(R.id.recyclerView);
         SearchList.setHasFixedSize(true);
         SearchList.setLayoutManager(new LinearLayoutManager(this));
 
         SearchInput = findViewById(R.id.searchText);
+        userprofileImage = findViewById(R.id.imageView4);
 
         SearchButton = findViewById(R.id.imageView2);
 
@@ -57,6 +61,14 @@ public class ProfilesList extends AppCompatActivity {
             public void onClick(View v) {
                 String SearchTextBox = SearchInput.getText().toString();
                 SearchPeople(SearchTextBox);
+            }
+        });
+
+        userprofileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent2 = new Intent(ProfilesList.this, Users_Profile_Activity.class);
+                startActivity(intent2);
             }
         });
 

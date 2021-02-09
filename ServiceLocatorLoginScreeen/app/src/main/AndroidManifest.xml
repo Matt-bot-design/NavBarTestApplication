@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ServiceLocatorLoginScreeen">
-        <activity android:name=".ResetPassword"></activity>
+        <activity android:name=".Users_Profile_Activity"></activity>
+        <activity android:name=".ResetPassword" />
         <activity android:name=".ComUpdateProfile" />
         <activity android:name=".RequestSummary" />
         <activity android:name=".Profilepage" />

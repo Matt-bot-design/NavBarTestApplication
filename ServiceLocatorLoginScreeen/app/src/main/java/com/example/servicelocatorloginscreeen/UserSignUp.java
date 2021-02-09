@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
@@ -167,9 +169,27 @@ public class UserSignUp extends AppCompatActivity {
         }
     }
 
+    private Boolean validateRetypePswrd () {
+        EditText userRetypePswrd;
+
+        userRetypePswrd = findViewById(R.id.user_repassword);
+
+        String val = userPassword.getEditText().getText().toString();
+        String val1 = userRetypePswrd.getText().toString();
+
+        if (!val.equals(val1)) {
+            Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        else {
+            userRetypePswrd.setError(null);
+            return true;
+        }
+    }
+
     public void UserReg (View view) {
 
-        if(!validateName() | !validateUsername() | !validateEmail() | !validatePhoneNum() | !validateAddress() | !validateID() | !validatePassword()) {
+        if(!validateName() | !validateUsername() | !validateEmail() | !validatePhoneNum() | !validateAddress() | !validateID() | !validatePassword() | !validateRetypePswrd()) {
             return;
         }
 
