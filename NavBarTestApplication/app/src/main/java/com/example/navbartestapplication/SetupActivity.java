@@ -18,11 +18,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -36,13 +40,13 @@ public class SetupActivity extends AppCompatActivity {
     private Button saveButton;
     private CircleImageView ProfileImage;
     private FirebaseAuth comAuth;
-    private ImageButton selectImage;
+    //private ImageButton selectImage;
     private DatabaseReference comRef;
-    private StorageReference comProfileRef;
+    //private StorageReference comProfileRef;
     String current_id;
     private ProgressDialog loading;
 
-    final static int Pick_image = 1;
+    //final static int Pick_image = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +58,7 @@ public class SetupActivity extends AppCompatActivity {
         comAuth = FirebaseAuth.getInstance();
         current_id = comAuth.getCurrentUser().getUid();
         comRef = FirebaseDatabase.getInstance().getReference().child("Company").child(current_id);
-        comProfileRef = FirebaseStorage.getInstance().getReference().child("Profile Images");
+        //comProfileRef = FirebaseStorage.getInstance().getReference().child("Profile Images");
 
         comfullname = findViewById(R.id.companyUpdateName);
         comusername = findViewById(R.id.username);
@@ -65,7 +69,7 @@ public class SetupActivity extends AppCompatActivity {
 
         saveButton = findViewById(R.id.btn_save);
         ProfileImage = findViewById(R.id.circleImageView);
-        selectImage = findViewById(R.id.ProfileimageButton);
+        //selectImage = findViewById(R.id.ProfileimageButton);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,84 +79,6 @@ public class SetupActivity extends AppCompatActivity {
             }
         });
 
-        selectImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                Intent gallery = new Intent();
-                gallery.setAction(Intent.ACTION_GET_CONTENT);
-                gallery.setType("image/*");
-                startActivityForResult(gallery, Pick_image);
-
-            }
-        });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == Pick_image && resultCode == RESULT_OK && data != null) {
-
-            Uri ImageUri = data.getData();
-
-            CropImage.activity()
-                    .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1,1)
-                    .start(this);
-        }
-
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-
-            if (resultCode == RESULT_OK) {
-
-                loading.setTitle("Saving Profile Image");
-                loading.setMessage("Please wait...");
-                loading.show();
-                loading.setCanceledOnTouchOutside(true);
-
-                Uri resultUri = result.getUri();
-
-                StorageReference file = comProfileRef.child(current_id + ".jpg");
-
-                file.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
-                     if (task.isSuccessful()) {
-                         Toast.makeText(SetupActivity.this, "Image stored successfully", Toast.LENGTH_SHORT).show();
-
-                         final String downloadUrl = task.getResult().getUploadSessionUri().toString();
-                         comRef.child("image").setValue(downloadUrl)
-                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                     @Override
-                                     public void onComplete(@NonNull Task<Void> task) {
-
-                                         if (task.isSuccessful()){
-                                             Intent setup = new Intent(SetupActivity.this, SetupActivity.class);
-                                             startActivity(setup);
-                                             Toast.makeText(SetupActivity.this, "image stored in database", Toast.LENGTH_SHORT).show();
-                                            loading.dismiss();
-                                         }
-                                         else {
-                                             String notify = task.getException().getMessage();
-                                             Toast.makeText(SetupActivity.this, "ERROR OCCURED" + notify, Toast.LENGTH_SHORT).show();
-                                             loading.dismiss();
-                                         }
-                                     }
-                                 });
-                     }
-                    }
-                });
-            }
-            else {
-                Toast.makeText(this, "ERROR OCCURED image cannot crop", Toast.LENGTH_SHORT).show();
-                loading.dismiss();
-            }
-        }
     }
 
     private void saveCompanyInfo() {

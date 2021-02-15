@@ -24,26 +24,14 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/circleImageView"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="100dp"
             android:layout_marginLeft="100dp"
             android:layout_marginTop="30dp"
             android:layout_marginEnd="100dp"
             android:layout_marginRight="100dp"
             android:src="@drawable/man" />
-
-        <ImageButton
-            android:id="@+id/ProfileimageButton"
-            android:layout_width="40dp"
-            android:layout_height="39dp"
-            android:layout_below="@+id/circleImageView"
-            android:layout_marginStart="-128dp"
-            android:layout_marginLeft="-128dp"
-            android:layout_marginTop="-40dp"
-            android:layout_toEndOf="@+id/circleImageView"
-            android:layout_toRightOf="@+id/circleImageView"
-            app:srcCompat="@android:drawable/ic_input_add" />
 
     </RelativeLayout>
 

@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthSettings;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,7 +38,8 @@ public class ProfilesList extends AppCompatActivity {
     private EditText SearchInput;
     private RecyclerView SearchList;
     private DatabaseReference companiesReference;
-    private ImageView userprofileImage;
+    private ImageView profileImage;
+    final static int position = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,7 @@ public class ProfilesList extends AppCompatActivity {
         SearchList.setLayoutManager(new LinearLayoutManager(this));
 
         SearchInput = findViewById(R.id.searchText);
-        userprofileImage = findViewById(R.id.imageView4);
+        //profileImage = findViewById(R.id.imageView4);
 
         SearchButton = findViewById(R.id.imageView2);
 
@@ -64,13 +66,13 @@ public class ProfilesList extends AppCompatActivity {
             }
         });
 
-        userprofileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent2 = new Intent(ProfilesList.this, Users_Profile_Activity.class);
-                startActivity(intent2);
-            }
-        });
+        //profileImage.setOnClickListener(new View.OnClickListener() {
+           // @Override
+            //public void onClick(View v) {
+                //Intent intent2 = new Intent(ProfilesList.this, ComUpdateProfile.class);
+                //startActivity(intent2);
+            //}
+        //});
 
 
     }
@@ -93,12 +95,13 @@ public class ProfilesList extends AppCompatActivity {
                 findCompanyViewHolder.mView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        int position = 0;
+                        //int position = 0;
                         String visit_company_id = getRef(position).getKey();
 
                         Intent profieIntent = new Intent(ProfilesList.this, Profilepage.class);
                         profieIntent.putExtra("visit_company_id", visit_company_id);
                         startActivity(profieIntent);
+                        finish();
                     }
                 });
 

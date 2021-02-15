@@ -15,22 +15,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="74dp"
-            android:background="#FECE2F"
+            android:background="@drawable/appbar"
             android:fontFamily="@font/bangers"
             android:gravity="center_vertical"
             android:inputType="text"
             android:text="Service Locator"
             android:textAlignment="center"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textSize="35sp" />
-        <ImageView
-            android:id="@+id/imageView4"
-            android:layout_width="44dp"
-            android:layout_height="45dp"
-            android:layout_gravity="right"
-            android:layout_marginTop="-50dp"
-            android:layout_marginRight="10dp"
-            app:srcCompat="@drawable/mannew" />
 
         <LinearLayout
             android:layout_width="match_parent"

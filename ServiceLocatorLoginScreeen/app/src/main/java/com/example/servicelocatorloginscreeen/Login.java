@@ -3,12 +3,14 @@ package com.example.servicelocatorloginscreeen;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,6 +25,8 @@ public class Login extends AppCompatActivity {
     Button btnLogin;
     TextInputLayout LoginUsername, LoginPassword;
     Button btnForgotPswrd;
+    ProgressDialog loading;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,19 +40,24 @@ public class Login extends AppCompatActivity {
         LoginPassword = findViewById(R.id.password);
         btnForgotPswrd = findViewById(R.id.btnForgot);
 
+        loading = new ProgressDialog(this);
+
         callSignUp.setOnClickListener((view) -> {
             Intent intent = new Intent(Login.this,UserSignUp.class);
             startActivity(intent);
+            finish();
         } );
 
         ComSignUp.setOnClickListener((view) -> {
             Intent intent2 = new Intent(Login.this,CompanySignUp.class);
             startActivity(intent2);
+            finish();
         } );
 
         btnForgotPswrd.setOnClickListener((view) -> {
             Intent intent3 = new Intent (Login.this, ResetPassword.class);
             startActivity(intent3);
+            finish();
         } );
 
 
@@ -86,8 +95,13 @@ public class Login extends AppCompatActivity {
             return;
         }
         else {
-            isUser();
+            //loading.setTitle("Logging In");
+            //loading.setMessage("Please wait");
+            //loading.show();
+            //loading.setCanceledOnTouchOutside(true);
             isCompany();
+            isUser();
+
         }
     }
 
@@ -96,8 +110,7 @@ public class Login extends AppCompatActivity {
         String companyEnteredUsername = LoginUsername.getEditText().getText().toString().trim();
         String companyEnteredPassword = LoginPassword.getEditText().getText().toString().trim();
 
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Company");
+        DatabaseReference reference =  FirebaseDatabase.getInstance().getReference("Company");
 
         Query checkUser = reference.orderByChild("companyusern").equalTo(companyEnteredUsername);
 
@@ -137,6 +150,7 @@ public class Login extends AppCompatActivity {
                         intent.putExtra("companyservices",servicesFromDB);
 
                         startActivity(intent);
+                        finish();
                     }
                     else {
                         LoginPassword.setError("Wrong Password");
@@ -154,6 +168,7 @@ public class Login extends AppCompatActivity {
 
             }
         });
+
     }
 
     private void isUser() {
@@ -189,7 +204,7 @@ public class Login extends AppCompatActivity {
                         String idNumFromDB = dataSnapshot.child(userEnteredUsername).child("idenNumber").getValue(String.class);
                         String physicaladdressFromDB = dataSnapshot.child(userEnteredUsername).child("physicaladdress").getValue(String.class);
 
-                        Intent intent = new Intent(getApplicationContext(),ProfilesList.class);
+                        Intent intent = new Intent(getApplicationContext(),Users_Profile_Activity.class);
 
                         intent.putExtra("name",nameFromDB);
                         intent.putExtra("usern",usernameFromDB);
@@ -197,8 +212,10 @@ public class Login extends AppCompatActivity {
                         intent.putExtra("useremail",emailFromDB);
                         intent.putExtra("physicaladdress",physicaladdressFromDB);
                         intent.putExtra("phone",phoneFromDB);
+                        intent.putExtra("userpassword",passwordFromDB);
 
                         startActivity(intent);
+                        finish();
                     }
                     else {
                         LoginPassword.setError("Wrong Password");
@@ -218,4 +235,5 @@ public class Login extends AppCompatActivity {
         });
 
     }
+
 }

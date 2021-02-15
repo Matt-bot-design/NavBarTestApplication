@@ -5,26 +5,17 @@
     android:id="@+id/signup_screen"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FECE2F"
+    android:background="@drawable/findjob"
     tools:context=".MainActivity">
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="67dp"
-        android:layout_marginTop="500dp"
+        android:layout_marginTop="600dp"
         android:fontFamily="@font/bangers"
         android:textAlignment="center"
         android:text="SERVICE LOCATOR"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="45sp" />
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="130dp"
-        android:layout_height="138dp"
-        android:layout_marginTop="350dp"
-        android:layout_marginLeft="135dp"
-        app:srcCompat="@drawable/service_locator_logo_trimmy" />
-
 </RelativeLayout>

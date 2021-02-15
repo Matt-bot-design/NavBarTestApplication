@@ -1,22 +1,30 @@
 package com.example.servicelocatorloginscreeen;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 public class UserSignUp extends AppCompatActivity {
 
     Button userSignUp_btn, btnlogin;
-    TextInputLayout userName, user_name, userEmailAddress, userPhoneNum, userPAddress, userPassword, userIdentityNumber;
+    TextInputLayout userName, user_name, userEmailAddress, userPhoneNum, userPAddress, userPassword, userIdentityNumber, SignUpUsername, SignUpPassword;
+    ProgressDialog loading;
 
     FirebaseDatabase rootNode;
     DatabaseReference reference;
@@ -25,6 +33,11 @@ public class UserSignUp extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_sign_up);
+
+        loading = new ProgressDialog(this);
+
+        rootNode = FirebaseDatabase.getInstance();
+        reference = rootNode.getReference("users");
 
         userName = findViewById(R.id.fullname);
         user_name = findViewById(R.id.username);
@@ -35,32 +48,21 @@ public class UserSignUp extends AppCompatActivity {
         userIdentityNumber = findViewById(R.id.identificationnumber);
         userSignUp_btn = findViewById(R.id.btnSignUpUser);
         btnlogin = findViewById(R.id.login_btn);
+        SignUpPassword = findViewById(R.id.password);
+        SignUpUsername = findViewById(R.id.username);
 
         btnlogin.setOnClickListener((view) -> {
                     Intent intent = new Intent(UserSignUp.this, Login.class);
                     startActivity(intent);
 
                 });
-       // userSignUp_btn.setOnClickListener(new View.OnClickListener() {
-          //  @Override
-          //  public void onClick(View view) {
-              //  rootNode = FirebaseDatabase.getInstance();
-               // reference = rootNode.getReference("users");
 
-              //  String name = userName.getEditText().getText().toString();
-              //  String usern = user_name.getEditText().getText().toString();
-              //  String useremail = userEmailAddress.getEditText().getText().toString();
-              //  String phone = userPhoneNum.getEditText().getText().toString();
-               // String physicaladdress = userPAddress.getEditText().getText().toString();
-               // String userpassword = userPassword.getEditText().getText().toString();
-               // String idenNumber = userIdentityNumber.getEditText().getText().toString();
-
-               // UserHandlerClass handlerClass = new UserHandlerClass(name, usern, useremail, phone, physicaladdress, userpassword, idenNumber);
-
-                //reference.child(idenNumber).setValue(handlerClass);
-
-           // }
-       // });
+        userSignUp_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                UserReg();
+             }
+        });
 
     }
 
@@ -187,14 +189,17 @@ public class UserSignUp extends AppCompatActivity {
         }
     }
 
-    public void UserReg (View view) {
+    public void UserReg () {
 
         if(!validateName() | !validateUsername() | !validateEmail() | !validatePhoneNum() | !validateAddress() | !validateID() | !validatePassword() | !validateRetypePswrd()) {
             return;
         }
 
-        rootNode = FirebaseDatabase.getInstance();
-        reference = rootNode.getReference("users");
+        loading.setTitle("Creating ACcount");
+        loading.setMessage("please wait...");
+        loading.show();
+        loading.setCanceledOnTouchOutside(true);
+        isUser();
 
         String name = userName.getEditText().getText().toString();
         String usern = user_name.getEditText().getText().toString();
@@ -206,7 +211,73 @@ public class UserSignUp extends AppCompatActivity {
         UserHandlerClass handlerClass = new UserHandlerClass(name, usern, useremail, phone, physicaladdress, userpassword, idenNumber);
         reference.child(usern).setValue(handlerClass);
 
-        Intent intent = new Intent(UserSignUp.this,ProfilesList.class);
+        Intent intent = new Intent(UserSignUp.this,Users_Profile_Activity.class);
         startActivity(intent);
+        finish();
+    }
+
+    private void isUser() {
+
+        String userEnteredUsername = SignUpUsername.getEditText().getText().toString().trim();
+        String userEnteredPassword = SignUpPassword.getEditText().getText().toString().trim();
+
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
+
+        Query checkUser = reference.orderByChild("usern").equalTo(userEnteredUsername);
+
+        checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot.exists()) {
+
+                    SignUpUsername.setError(null);
+                    SignUpUsername.setErrorEnabled(false);
+
+                    String passwordFromDB = dataSnapshot.child(userEnteredUsername).child("userpassword").getValue(String.class);
+
+                    if(passwordFromDB.equals(userEnteredPassword)) {
+
+                        SignUpUsername.setError(null);
+                        SignUpUsername.setErrorEnabled(false);
+
+                        String nameFromDB = dataSnapshot.child(userEnteredUsername).child("name").getValue(String.class);
+                        String usernameFromDB = dataSnapshot.child(userEnteredUsername).child("usern").getValue(String.class);
+                        String phoneFromDB = dataSnapshot.child(userEnteredUsername).child("phone").getValue(String.class);
+                        String emailFromDB = dataSnapshot.child(userEnteredUsername).child("useremail").getValue(String.class);
+                        String idNumFromDB = dataSnapshot.child(userEnteredUsername).child("idenNumber").getValue(String.class);
+                        String physicaladdressFromDB = dataSnapshot.child(userEnteredUsername).child("physicaladdress").getValue(String.class);
+
+                        Intent intent = new Intent(getApplicationContext(),Users_Profile_Activity.class);
+
+                        intent.putExtra("name",nameFromDB);
+                        intent.putExtra("usern",usernameFromDB);
+                        intent.putExtra("idenNumber",idNumFromDB);
+                        intent.putExtra("useremail",emailFromDB);
+                        intent.putExtra("physicaladdress",physicaladdressFromDB);
+                        intent.putExtra("phone",phoneFromDB);
+                        intent.putExtra("userpassword",passwordFromDB);
+
+                        startActivity(intent);
+                        finish();
+                    }
+                    else {
+                        SignUpPassword.setError("Wrong Password");
+                        SignUpPassword.requestFocus();
+                    }
+                }
+                else {
+                    SignUpUsername.setError("No such user exist");
+                    SignUpUsername.requestFocus();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 }

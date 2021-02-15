@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,6 +21,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference CompanyRef;
 
     private FirebaseAuth mAuth;
+    String current_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mAuth = FirebaseAuth.getInstance();
+        current_id = mAuth.getCurrentUser().getUid();
         CompanyRef = FirebaseDatabase.getInstance().getReference().child("Company");
 
         myToolbar = findViewById(R.id.home_toolbar);
@@ -45,13 +51,15 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Home");
 
         drawerLayout = findViewById(R.id.drawable_layout);
-        navView = findViewById(R.id.navigation_view);
-        View navigation = navView.inflateHeaderView(R.layout.nav_header);
-
         actionBarToggle = new ActionBarDrawerToggle(MainActivity.this, drawerLayout, R.string.drawer_open, R.string.drawer_close);
         drawerLayout.addDrawerListener(actionBarToggle);
         actionBarToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        navView = findViewById(R.id.navigation_view);
+
+        View navigation = navView.inflateHeaderView(R.layout.nav_header);
+
+
 
         navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -137,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.nav_profile:
                 // place code in here
-                SendCompanyToSetup();
+                //SendCompanyToSetup();
                 break;
 
             case R.id.nav_settings:

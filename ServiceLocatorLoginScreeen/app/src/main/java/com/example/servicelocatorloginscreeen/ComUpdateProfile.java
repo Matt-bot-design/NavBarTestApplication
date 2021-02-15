@@ -1,27 +1,54 @@
 package com.example.servicelocatorloginscreeen;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
+
+import java.io.File;
+import java.util.UUID;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ComUpdateProfile extends AppCompatActivity {
 
     TextInputLayout comfullname, comemail, comphone, comaddress, comregnumber, comofferedservices, compassword;
     TextView companyusername;
     ImageView backarrow;
+    CircleImageView profileImage;
+    Uri imageUri;
 
     private String companyuser, companyName, companyEmail, companyAddress, companyPhone, companyRegister, companyServices, companyPassword;
 
     DatabaseReference companyreference;
+    FirebaseStorage storage;
+    StorageReference storageReference;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +56,8 @@ public class ComUpdateProfile extends AppCompatActivity {
         setContentView(R.layout.activity_com_update_profile);
 
         companyreference = FirebaseDatabase.getInstance().getReference("Company");
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
 
         comfullname = findViewById(R.id.companyUpdateName);
         comemail = findViewById(R.id.companyUpdateEmail);
@@ -39,6 +68,7 @@ public class ComUpdateProfile extends AppCompatActivity {
         comofferedservices = findViewById(R.id.companyUpdateServices);
         compassword = findViewById(R.id.companyUpdatePassword);
         backarrow = findViewById(R.id.imageView5);
+        profileImage = findViewById(R.id.circleImageView);
 
         companyData();
 
@@ -49,6 +79,74 @@ public class ComUpdateProfile extends AppCompatActivity {
                 startActivity(intent2);
             }
         });
+
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                chooseImage();
+            }
+        });
+
+    }
+
+    private void chooseImage() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode==1 && requestCode==RESULT_OK && data!=null) {
+            imageUri = data.getData();
+            profileImage.setImageURI(imageUri);
+
+            uploadImage();
+        }
+    }
+
+    private void uploadImage() {
+
+        final ProgressDialog loading = new ProgressDialog(this);
+        loading.setTitle("Uploading....");
+        loading.show();
+
+        final String randomkey = UUID.randomUUID().toString();
+        StorageReference riversRef = storageReference.child("images/" + randomkey);
+
+        riversRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                Snackbar.make(findViewById(android.R.id.content), "Image Uploaded.", Snackbar.LENGTH_LONG).show();
+                loading.dismiss();
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                loading.dismiss();
+                Toast.makeText(getApplicationContext(), "Failed To Upload", Toast.LENGTH_SHORT).show();
+            }
+        })
+          .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+              @Override
+              public void onProgress(@NonNull UploadTask.TaskSnapshot snapshot) {
+                  double progressPercent = (100.00 * snapshot.getBytesTransferred() / snapshot.getTotalByteCount());
+                  loading.setMessage("Progress: " + (int) progressPercent + "%");
+              }
+          });
+    }
+
+    public void saveData(View view) {
+
+        if (isNameChanged() || isServicesChanged() || isEmailChanged() || isAddressChanged() || isPhoneChanged() || isRegisterNumChanged() || isPasswordChanged()) {
+            Toast.makeText(this, "Data Saved", Toast.LENGTH_LONG).show();
+        }
+        else {
+            Toast.makeText(this, "Data not saved", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -73,17 +171,6 @@ public class ComUpdateProfile extends AppCompatActivity {
         comofferedservices.getEditText().setText(companyServices);
 
 
-
-    }
-
-    public void saveData(View view) {
-
-        if (isNameChanged() || isServicesChanged() || isEmailChanged() || isAddressChanged() || isPhoneChanged() || isRegisterNumChanged() || isPasswordChanged()) {
-            Toast.makeText(this, "Data Saved", Toast.LENGTH_LONG).show();
-        }
-        else {
-            Toast.makeText(this, "Data not saved", Toast.LENGTH_SHORT).show();
-        }
 
     }
 

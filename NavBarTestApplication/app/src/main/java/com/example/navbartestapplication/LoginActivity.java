@@ -40,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
         LoginEmail = findViewById(R.id.email);
         LoginPassword = findViewById(R.id.password);
         btnLogin = findViewById(R.id.btnLogin);
-        btnForgotPswrd = findViewById(R.id.btnForgot);
+        //btnForgotPswrd = findViewById(R.id.btnForgot);
 
         ComSignUp.setOnClickListener(new View.OnClickListener() {
             @Override

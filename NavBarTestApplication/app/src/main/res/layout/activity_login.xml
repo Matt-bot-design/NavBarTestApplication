@@ -93,7 +93,7 @@
         <Button
             android:id="@+id/callSignUp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="58dp"
             android:layout_gravity="end"
             android:layout_margin="5dp"
             android:background="#00000000"
