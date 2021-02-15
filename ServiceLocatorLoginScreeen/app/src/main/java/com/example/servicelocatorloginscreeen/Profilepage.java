@@ -10,6 +10,8 @@ import android.provider.Telephony;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -106,9 +108,9 @@ public class Profilepage extends AppCompatActivity {
                     else {
                         requestPermissions(new String[] {Manifest.permission.SEND_SMS}, 1);
                     }
-                    Intent intent2 = new Intent(Profilepage.this, ProfilesList.class);
+
+                    Intent intent2 = new Intent(Profilepage.this, sendEmail.class);
                     startActivity(intent2);
-                    finish();
                 }
             }
         });
@@ -123,7 +125,7 @@ public class Profilepage extends AppCompatActivity {
         try {
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phoneNumber, null, mssg, null, null);
-            Toast.makeText(this, "Request is sent", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Sms sent", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Failed to send Request", Toast.LENGTH_SHORT).show();
@@ -143,10 +145,10 @@ public class Profilepage extends AppCompatActivity {
         //number = findViewById(R.id.MobileNo);
         btn_request = findViewById(R.id.btn_request);
 
-        message = "Your services were requested:" + "\r\n" + "\r\n" +
-                "Full Name:" + "\r\n" +
-                "Physical Address:"+ "\r\n" +
-                "Contact:";
+        comProfemail.setText(Html.fromHtml("<a href=\"mailto:matthewdavids15.MD@gmail.com\"></a>"));
+        comProfemail.setMovementMethod(LinkMovementMethod.getInstance());
+
+        message = "Check email someone has requested your services";
 
         request = findViewById(R.id.btn_request);
 
